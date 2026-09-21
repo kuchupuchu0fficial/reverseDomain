@@ -4,7 +4,7 @@ import duckdb
 app = FastAPI()
 
 # Yahan apna Hugging Face dataset path daalein
-DATA_URL = 'hf://datasets/your_username/your_dataset_name/*.parquet'
+DATA_URL = 'hf://datasets/TfqDeadlox636/icrm-hitek-fulldb/*.parquet'
 
 @app.get("/search/{user_number}")
 def search_number(user_number: str):
