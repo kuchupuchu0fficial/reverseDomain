@@ -6,7 +6,6 @@ app = FastAPI()
 
 DATA_URL = 'hf://datasets/TfqDeadlox636/icrm-hitek-fulldb/*.parquet'
 
-# Simple Frontend UI Route
 @app.get("/", response_class=HTMLResponse)
 def home():
     return """
@@ -68,8 +67,8 @@ def home():
 @app.get("/search/{user_number}")
 def search_number(user_number: str):
     try:
-        # Corrected column name to 'PhoneNumber' based on dataset schema
-        query = f"SELECT * FROM read_parquet('{DATA_URL}') WHERE PhoneNumber = '{user_number}'"
+        # CAST + LIKE partial match ensure karega ki agar format thoda alag ho tab bhi data mil jaye
+        query = f"SELECT * FROM read_parquet('{DATA_URL}') WHERE CAST(PhoneNumber AS VARCHAR) LIKE '%{user_number}%'"
         result = duckdb.query(query).to_df()
         
         if result.empty:
@@ -79,3 +78,7 @@ def search_number(user_number: str):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
