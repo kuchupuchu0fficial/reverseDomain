@@ -46,9 +46,11 @@ def home():
                     resultDiv.innerHTML = "Please enter a phone number.";
                     return;
                 }
-                resultDiv.innerHTML = "Searching...";
+                
+                resultDiv.innerHTML = "Searching... (Note: Free server may take 30s to wake up if idle)";
+                
                 try {
-                    const response = await fetch('/search/' + phone);
+                    const response = await fetch('/search/' + encodeURIComponent(phone));
                     const data = await response.json();
                     if(response.ok) {
                         resultDiv.innerHTML = "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
@@ -56,7 +58,7 @@ def home():
                         resultDiv.innerHTML = data.detail || "Not found";
                     }
                 } catch(err) {
-                    resultDiv.innerHTML = "Error connecting to server.";
+                    resultDiv.innerHTML = "Error connecting to server. Please try again after 30 seconds.";
                 }
             }
         </script>
@@ -67,7 +69,7 @@ def home():
 @app.get("/search/{user_number}")
 def search_number(user_number: str):
     try:
-        # CAST + LIKE partial match ensure karega ki agar format thoda alag ho tab bhi data mil jaye
+        # CAST aur LIKE ka use kiya hai taaki partial match ho sake aur format issue na aaye
         query = f"SELECT * FROM read_parquet('{DATA_URL}') WHERE CAST(PhoneNumber AS VARCHAR) LIKE '%{user_number}%'"
         result = duckdb.query(query).to_df()
         
